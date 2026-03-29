@@ -1,0 +1,270 @@
+{
+  "info": {
+    "name": "Recipe Manager API",
+    "description": "Small Postman collection for quick local testing of the Recipe Manager API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "recipeId",
+      "value": "1"
+    },
+    {
+      "key": "platId",
+      "value": "1"
+    },
+    {
+      "key": "menuId",
+      "value": "1"
+    },
+    {
+      "key": "ingredientId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ingredients",
+      "item": [
+        {
+          "name": "GET /api/ingredients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ingredients?limit=25&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ingredients"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/ingredients",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomIngredient\": \"Ail\",\n  \"imageIngredient\": \"https://images.unsplash.com/photo-1615477550927-6ec4e7f4f52f\",\n  \"uniteType\": \"g\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ingredients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ingredients"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/ingredients/:id/stock",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantite\": 900\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ingredients/{{ingredientId}}/stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ingredients", "{{ingredientId}}", "stock"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recettes",
+      "item": [
+        {
+          "name": "GET /api/recettes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recettes?limit=25&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recettes"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/recettes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomRecette\": \"Recette Test Rapide\",\n  \"tempsPrep\": 15,\n  \"idPlat\": {{platId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recettes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recettes"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/recettes/:id/ingredients",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idIngredient\": {{ingredientId}},\n  \"nbrIngredient\": 120,\n  \"unite\": \"g\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recettes/{{recipeId}}/ingredients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recettes", "{{recipeId}}", "ingredients"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/recettes/:id/full",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recettes/{{recipeId}}/full",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recettes", "{{recipeId}}", "full"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menus",
+      "item": [
+        {
+          "name": "GET /api/menus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/menus?limit=25&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menus"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/menus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomMenu\": \"Menu Test\",\n  \"description\": \"Menu cree depuis Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menus"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/menus/:id/plats/:platId",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/menus/{{menuId}}/plats/{{platId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menus", "{{menuId}}", "plats", "{{platId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/menus/:id/plats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/menus/{{menuId}}/plats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menus", "{{menuId}}", "plats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
