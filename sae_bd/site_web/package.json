@@ -1,0 +1,36 @@
+{
+  "name": "recipe-manager-api",
+  "version": "1.0.0",
+  "description": "Local recipe manager API built with Express and Drizzle ORM",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:seed": "node scripts/seed.js"
+  },
+  "keywords": [
+    "express",
+    "drizzle",
+    "mysql",
+    "recipes"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.44.2",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.14.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4",
+    "nodemon": "^3.1.9"
+  }
+}

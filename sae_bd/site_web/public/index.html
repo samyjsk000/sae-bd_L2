@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Manager Pro</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        min-height: 100vh;
+      }
+      .navbar {
+        background: #2c3e50;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      .navbar h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .nav-links button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+      }
+      .nav-links button:hover,
+      .nav-links button.active {
+        background: #667eea;
+        border-color: #667eea;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .card h2,
+      .card h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 1rem;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+      button:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+      button.small {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+      button.danger {
+        background: #e74c3c;
+      }
+      button.danger:hover {
+        background: #c0392b;
+      }
+      button.secondary {
+        background: #95a5a6;
+      }
+      button.secondary:hover {
+        background: #7f8c8d;
+      }
+      .item-card {
+        background: #f9f9f9;
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .item-info {
+        flex: 1;
+      }
+      .item-info h4 {
+        margin-bottom: 0.25rem;
+        color: #2c3e50;
+      }
+      .item-info p {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0.25rem 0;
+      }
+      .item-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin: 0.25rem 0;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+      }
+      .modal.active {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2rem 0;
+      }
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 700px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      .modal-header h2 {
+        color: #2c3e50;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+      }
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 2px solid #eee;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      .tabs button {
+        background: none;
+        border: none;
+        color: #666;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+      .tabs button:hover,
+      .tabs button.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .msg {
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        display: none;
+      }
+      .msg.show {
+        display: block;
+      }
+      .msg.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .msg.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .loading {
+        text-align: center;
+        color: #999;
+        padding: 2rem;
+      }
+      .empty {
+        text-align: center;
+        color: #999;
+        padding: 2rem;
+        font-style: italic;
+      }
+      .section-title {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <h1>🍳 Recipe Manager Pro</h1>
+      <div class="nav-links">
+        <button class="nav-btn active" data-section="recipes">Recipes</button>
+        <button class="nav-btn" data-section="ingredients">Ingredients</button>
+        <button class="nav-btn" data-section="utensils">Utensils</button>
+        <button class="nav-btn" data-section="menus">Menus</button>
+        <button class="nav-btn" data-section="suppliers">Suppliers</button>
+        <button class="nav-btn" data-section="categories">Categories</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- RECIPES Section -->
+      <div id="recipes" class="section active">
+        <div class="card">
+          <h2 class="section-title">Recipes</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="recipe-list">List</button>
+            <button class="tab-btn" data-tab="recipe-create">Create</button>
+          </div>
+
+          <!-- Recipe List Tab -->
+          <div id="recipe-list" class="tab-content active">
+            <div class="form-group">
+              <input
+                type="text"
+                id="recipe-search"
+                placeholder="Search recipes..."
+              />
+            </div>
+            <div id="recipe-list-container" class="loading">Loading...</div>
+          </div>
+
+          <!-- Recipe Create Tab -->
+          <div id="recipe-create" class="tab-content">
+            <form id="recipe-form">
+              <div class="form-group">
+                <label>Recipe Name *</label>
+                <input type="text" id="recipe-name" required />
+              </div>
+              <div class="form-group">
+                <label>Prep Time (min)</label>
+                <input type="number" id="recipe-time" value="30" />
+              </div>
+              <div class="form-group">
+                <label>Dish (Plat ID)</label>
+                <select id="recipe-plat">
+                  <option value="">No dish</option>
+                </select>
+              </div>
+              <button type="submit">Create Recipe</button>
+            </form>
+            <div id="recipe-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INGREDIENTS Section -->
+      <div id="ingredients" class="section">
+        <div class="card">
+          <h2 class="section-title">Ingredients</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ing-list">List</button>
+            <button class="tab-btn" data-tab="ing-create">Create</button>
+          </div>
+
+          <!-- Ingredient List Tab -->
+          <div id="ing-list" class="tab-content active">
+            <div id="ingredients-list-container" class="loading">
+              Loading...
+            </div>
+          </div>
+
+          <!-- Ingredient Create Tab -->
+          <div id="ing-create" class="tab-content">
+            <form id="ingredient-form">
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="ing-name" required />
+              </div>
+              <div class="form-group">
+                <label>Unit</label>
+                <input
+                  type="text"
+                  id="ing-unit"
+                  value="g"
+                  placeholder="g, ml, pcs"
+                />
+              </div>
+              <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" id="ing-image" />
+              </div>
+              <button type="submit">Create Ingredient</button>
+            </form>
+            <div id="ingredient-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UTENSILS Section -->
+      <div id="utensils" class="section">
+        <div class="card">
+          <h2 class="section-title">Utensils</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="utensil-list">List</button>
+            <button class="tab-btn" data-tab="utensil-create">Create</button>
+          </div>
+
+          <div id="utensil-list" class="tab-content active">
+            <div id="utensils-list-container" class="loading">Loading...</div>
+          </div>
+
+          <div id="utensil-create" class="tab-content">
+            <form id="utensil-form">
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="utensil-name" required />
+              </div>
+              <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" id="utensil-image" />
+              </div>
+              <button type="submit">Create Utensil</button>
+            </form>
+            <div id="utensil-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENUS Section -->
+      <div id="menus" class="section">
+        <div class="card">
+          <h2 class="section-title">Menus</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="menu-list">List</button>
+            <button class="tab-btn" data-tab="menu-create">Create</button>
+          </div>
+
+          <div id="menu-list" class="tab-content active">
+            <div id="menus-list-container" class="loading">Loading...</div>
+          </div>
+
+          <div id="menu-create" class="tab-content">
+            <form id="menu-form">
+              <div class="form-group">
+                <label>Menu Name *</label>
+                <input type="text" id="menu-name" required />
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea id="menu-desc"></textarea>
+              </div>
+              <button type="submit">Create Menu</button>
+            </form>
+            <div id="menu-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPLIERS Section -->
+      <div id="suppliers" class="section">
+        <div class="card">
+          <h2 class="section-title">Suppliers</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="supplier-list">
+              List
+            </button>
+            <button class="tab-btn" data-tab="supplier-create">Create</button>
+          </div>
+
+          <div id="supplier-list" class="tab-content active">
+            <div id="suppliers-list-container" class="loading">Loading...</div>
+          </div>
+
+          <div id="supplier-create" class="tab-content">
+            <form id="supplier-form">
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="supplier-name" required />
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="supplier-loc" />
+              </div>
+              <div class="form-group">
+                <label>Contact</label>
+                <input type="text" id="supplier-contact" />
+              </div>
+              <button type="submit">Create Supplier</button>
+            </form>
+            <div id="supplier-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORIES Section -->
+      <div id="categories" class="section">
+        <div class="card">
+          <h2 class="section-title">Categories</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="cat-list">List</button>
+            <button class="tab-btn" data-tab="cat-create">Create</button>
+          </div>
+
+          <div id="cat-list" class="tab-content active">
+            <div id="categories-list-container" class="loading">Loading...</div>
+          </div>
+
+          <div id="cat-create" class="tab-content">
+            <form id="category-form">
+              <div class="form-group">
+                <label>Category Name *</label>
+                <input type="text" id="category-name" required />
+              </div>
+              <button type="submit">Create Category</button>
+            </form>
+            <div id="category-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipe Detail Modal -->
+    <div id="recipe-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-recipe-name"></h2>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="modal-info">Info</button>
+          <button class="tab-btn" data-tab="modal-ingredients">
+            Ingredients
+          </button>
+          <button class="tab-btn" data-tab="modal-steps">Steps</button>
+          <button class="tab-btn" data-tab="modal-nutrition">Nutrition</button>
+          <button class="tab-btn" data-tab="modal-utensils">Utensils</button>
+        </div>
+        <div id="modal-info" class="tab-content active"></div>
+        <div id="modal-ingredients" class="tab-content"></div>
+        <div id="modal-steps" class="tab-content"></div>
+        <div id="modal-nutrition" class="tab-content"></div>
+        <div id="modal-utensils" class="tab-content"></div>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://localhost:3000/api";
+      let cachedRecipes = [];
+      let cachedIngredients = [];
+      let cachedUtensils = [];
+      let cachedPlats = [];
+
+      const optionList = (rows, valueKey, labelKey, emptyLabel) => {
+        const base = `<option value="">${emptyLabel}</option>`;
+        const dynamic = rows
+          .map(
+            (row) =>
+              `<option value="${row[valueKey]}">${row[labelKey]}</option>`,
+          )
+          .join("");
+        return `${base}${dynamic}`;
+      };
+
+      async function fetchReferenceData() {
+        const [recipesRes, ingredientsRes, utensilsRes, platsRes] =
+          await Promise.all([
+            api("/recettes?limit=200").catch(() => ({ data: [] })),
+            api("/ingredients?limit=200").catch(() => ({ data: [] })),
+            api("/utensils?limit=200").catch(() => ({ data: [] })),
+            api("/plats?limit=200").catch(() => ({ data: [] })),
+          ]);
+
+        cachedRecipes = recipesRes.data || [];
+        cachedIngredients = ingredientsRes.data || [];
+        cachedUtensils = utensilsRes.data || [];
+        cachedPlats = platsRes.data || [];
+
+        const recipePlatSelect = document.getElementById("recipe-plat");
+        if (recipePlatSelect) {
+          recipePlatSelect.innerHTML = optionList(
+            cachedPlats,
+            "idPlat",
+            "nomPlat",
+            "No dish",
+          );
+        }
+      }
+
+      // Navigation
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          document
+            .querySelectorAll(".section")
+            .forEach((s) => s.classList.remove("active"));
+          document
+            .querySelectorAll(".nav-btn")
+            .forEach((b) => b.classList.remove("active"));
+          const section = e.target.dataset.section;
+          document.getElementById(section).classList.add("active");
+          e.target.classList.add("active");
+          loadSection(section);
+        });
+      });
+
+      // Tabs - for card tabs
+      document.querySelectorAll(".card .tabs .tab-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const card = e.target.closest(".card");
+          if (!card) return;
+          card
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          card
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+          e.target.classList.add("active");
+          const tabId = e.target.dataset.tab;
+          card.querySelector("#" + tabId).classList.add("active");
+        });
+      });
+
+      // Tabs - for modal tabs
+      document
+        .querySelectorAll(".modal-content .tabs .tab-btn")
+        .forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const modal = e.target.closest(".modal-content");
+            if (!modal) return;
+            modal
+              .querySelectorAll(".tab-btn")
+              .forEach((b) => b.classList.remove("active"));
+            modal
+              .querySelectorAll(".tab-content")
+              .forEach((c) => c.classList.remove("active"));
+            e.target.classList.add("active");
+            const tabId = e.target.dataset.tab;
+            modal.querySelector("#" + tabId).classList.add("active");
+          });
+        });
+
+      async function api(path, method = "GET", body = null) {
+        const options = {
+          method,
+          headers: { "Content-Type": "application/json" },
+        };
+        if (body) options.body = JSON.stringify(body);
+        try {
+          const res = await fetch(`${API}${path}`, options);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return method === "DELETE" ? null : await res.json();
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
+      }
+
+      function showMsg(elementId, msg, isError = false) {
+        const el = document.getElementById(elementId);
+        el.textContent = msg;
+        el.className = `msg show ${isError ? "error" : "success"}`;
+        setTimeout(() => el.classList.remove("show"), 3000);
+      }
+
+      async function loadSection(section) {
+        if (section === "recipes") loadRecipes();
+        else if (section === "ingredients") loadIngredients();
+        else if (section === "utensils") loadUtensils();
+        else if (section === "menus") {
+          await fetchReferenceData();
+          loadMenus();
+        } else if (section === "suppliers") {
+          await fetchReferenceData();
+          loadSuppliers();
+        } else if (section === "categories") loadCategories();
+      }
+
+      // RECIPES
+      async function loadRecipes() {
+        try {
+          const res = await api("/recettes?limit=100");
+          const recipes = res.data || [];
+          const html = recipes.length
+            ? recipes
+                .map(
+                  (r) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${r.nomRecette}</h4>
+                  <p>⏱️ ${r.tempsPrep || 0} min</p>
+                </div>
+                <div class="item-actions">
+                  <button class="small" onclick="viewRecipe(${r.idRecette})">View</button>
+                  <button class="small danger" onclick="deleteRecipe(${r.idRecette})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No recipes yet</div>';
+          document.getElementById("recipe-list-container").innerHTML = html;
+        } catch (err) {
+          document.getElementById("recipe-list-container").innerHTML =
+            '<div class="empty">Error loading recipes</div>';
+        }
+      }
+
+      document
+        .getElementById("recipe-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/recettes", "POST", {
+              nomRecette: document.getElementById("recipe-name").value,
+              tempsPrep: parseInt(document.getElementById("recipe-time").value),
+              idPlat:
+                parseInt(document.getElementById("recipe-plat").value) || null,
+            });
+            showMsg("recipe-msg", "Recipe created!");
+            document.getElementById("recipe-form").reset();
+            await fetchReferenceData();
+            loadRecipes();
+          } catch (err) {
+            showMsg("recipe-msg", "Error creating recipe", true);
+          }
+        });
+
+      document
+        .getElementById("recipe-search")
+        ?.addEventListener("input", async (e) => {
+          const q = e.target.value.trim();
+          try {
+            const res = q
+              ? await api(`/recettes?q=${encodeURIComponent(q)}`)
+              : await api("/recettes?limit=100");
+            const recipes = res.data || [];
+            const html = recipes.length
+              ? recipes
+                  .map(
+                    (r) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${r.nomRecette}</h4>
+                  <p>⏱️ ${r.tempsPrep || 0} min</p>
+                </div>
+                <div class="item-actions">
+                  <button class="small" onclick="viewRecipe(${r.idRecette})">View</button>
+                  <button class="small danger" onclick="deleteRecipe(${r.idRecette})">Delete</button>
+                </div>
+              </div>
+            `,
+                  )
+                  .join("")
+              : '<div class="empty">No recipes found</div>';
+            document.getElementById("recipe-list-container").innerHTML = html;
+          } catch (err) {
+            console.error(err);
+          }
+        });
+
+      async function viewRecipe(id) {
+        try {
+          const res = await api(`/recettes/${id}/full`);
+          const r = res.data;
+          document.getElementById("modal-recipe-name").textContent =
+            r.nomRecette;
+
+          // Info tab
+          document.getElementById("modal-info").innerHTML = `
+          <p><strong>Prep Time:</strong> ${r.tempsPrep || 0} min</p>
+          <p><strong>Created:</strong> ${new Date(r.creeA).toLocaleDateString()}</p>
+        `;
+
+          // Ingredients tab
+          const availableIngredients = cachedIngredients.filter(
+            (item) =>
+              !r.ingredients?.some(
+                (ri) => ri.idIngredient === item.idIngredient,
+              ),
+          );
+          const ingHtml = `<h4>Add Ingredient</h4>
+             <div class="form-group">
+               <select id="new-ing-id">${optionList(
+                 availableIngredients,
+                 "idIngredient",
+                 "nomIngredient",
+                 "Select ingredient",
+               )}</select>
+               <input type="number" id="new-ing-qty" placeholder="Quantity">
+               <input type="text" id="new-ing-unit" placeholder="Unit">
+             </div>
+             <button onclick="addRecipeIngredient(${id})">Add</button>
+             ${
+               r.ingredients?.length
+                 ? `<h4 style="margin-top:1rem">Ingredients:</h4>
+             <ul>${r.ingredients.map((i) => `<li>${i.nomIngredient}: ${i.nbrIngredient} ${i.unite || ""}</li>`).join("")}</ul>`
+                 : '<div class="empty" style="margin-top:1rem">No ingredients yet</div>'
+             }`;
+          document.getElementById("modal-ingredients").innerHTML = ingHtml;
+
+          // Steps tab
+          const stepsHtml = `<h4>Add Step</h4>
+             <div class="form-group">
+               <input type="number" id="new-step-num" placeholder="Step Number">
+               <textarea id="new-step-text" placeholder="Step description"></textarea>
+             </div>
+             <button onclick="addRecipeStep(${id})">Add Step</button>
+             ${
+               r.etapes?.length
+                 ? `<h4 style="margin-top:1rem">Steps:</h4>
+             <ol>${r.etapes.map((s) => `<li>${s.textEtape}</li>`).join("")}</ol>`
+                 : '<div class="empty" style="margin-top:1rem">No steps yet</div>'
+             }`;
+          document.getElementById("modal-steps").innerHTML = stepsHtml;
+
+          // Nutrition tab
+          const nutHtml = `
+          <h4>Nutrition Info</h4>
+          ${
+            r.nutrition
+              ? `
+            <p><strong>Calories:</strong> ${r.nutrition.calories || 0}</p>
+            <p><strong>Protein:</strong> ${r.nutrition.proteines || 0}g</p>
+            <p><strong>Carbs:</strong> ${r.nutrition.carbs || 0}g</p>
+            <p><strong>Fat:</strong> ${r.nutrition.grasse || 0}g</p>
+          `
+              : '<div class="empty">No nutrition info yet</div>'
+          }
+          <div class="form-group" style="margin-top:1rem">
+            <input type="number" id="nut-cal" placeholder="Calories" value="${r.nutrition?.calories || ""}">
+            <input type="number" id="nut-protein" placeholder="Protein (g)" value="${r.nutrition?.proteines || ""}">
+            <input type="number" id="nut-carbs" placeholder="Carbs (g)" value="${r.nutrition?.carbs || ""}">
+            <input type="number" id="nut-fat" placeholder="Fat (g)" value="${r.nutrition?.grasse || ""}">
+          </div>
+          <button onclick="updateRecipeNutrition(${id})">Save Nutrition</button>
+        `;
+          document.getElementById("modal-nutrition").innerHTML = nutHtml;
+
+          // Utensils tab
+          const availableUtensils = cachedUtensils.filter(
+            (item) =>
+              !r.utensils?.some((ru) => ru.idUtensil === item.idUtensil),
+          );
+          const utenHtml = `<h4>Add Utensil</h4>
+             <div class="form-group">
+               <select id="new-utensil-id">${optionList(
+                 availableUtensils,
+                 "idUtensil",
+                 "nomUtensile",
+                 "Select utensil",
+               )}</select>
+             </div>
+             <button onclick="addRecipeUtensil(${id})">Add</button>
+             ${
+               r.utensils?.length
+                 ? `<h4 style="margin-top:1rem">Utensils:</h4>
+             <ul>${r.utensils.map((u) => `<li>${u.nomUtensile}</li>`).join("")}</ul>`
+                 : '<div class="empty" style="margin-top:1rem">No utensils yet</div>'
+             }`;
+          document.getElementById("modal-utensils").innerHTML = utenHtml;
+
+          document.getElementById("recipe-modal").classList.add("active");
+        } catch (err) {
+          alert("Error loading recipe details");
+        }
+      }
+
+      async function addRecipeIngredient(id) {
+        const ingId = Number(document.getElementById("new-ing-id").value);
+        const qty = document.getElementById("new-ing-qty").value;
+        const unit = document.getElementById("new-ing-unit").value;
+        if (!ingId || !qty) {
+          alert("Fill all fields");
+          return;
+        }
+        try {
+          await api(`/recettes/${id}/ingredients`, "POST", {
+            idIngredient: ingId,
+            nbrIngredient: parseFloat(qty),
+            unite: unit,
+          });
+          viewRecipe(id);
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      async function addRecipeStep(id) {
+        const num = document.getElementById("new-step-num").value;
+        const text = document.getElementById("new-step-text").value;
+        if (!num || !text) {
+          alert("Fill all fields");
+          return;
+        }
+        try {
+          await api(`/recettes/${id}/etapes`, "POST", {
+            numeroEtape: parseInt(num),
+            textEtape: text,
+          });
+          viewRecipe(id);
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      async function updateRecipeNutrition(id) {
+        try {
+          await api(`/recettes/${id}/nutrition`, "PUT", {
+            calories: document.getElementById("nut-cal").value || null,
+            proteines: document.getElementById("nut-protein").value || null,
+            carbs: document.getElementById("nut-carbs").value || null,
+            grasse: document.getElementById("nut-fat").value || null,
+          });
+          viewRecipe(id);
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      async function addRecipeUtensil(id) {
+        const uId = Number(document.getElementById("new-utensil-id").value);
+        if (!uId) {
+          alert("Select a utensil");
+          return;
+        }
+        try {
+          await api(`/recettes/${id}/utensils/${uId}`, "POST", {});
+          viewRecipe(id);
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      async function deleteRecipe(id) {
+        if (!confirm("Delete recipe?")) return;
+        try {
+          await api(`/recettes/${id}`, "DELETE");
+          loadRecipes();
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("recipe-modal").classList.remove("active");
+      }
+
+      // INGREDIENTS
+      async function loadIngredients() {
+        try {
+          const res = await api("/ingredients?limit=100");
+          const data = res.data || [];
+          const html = data.length
+            ? data
+                .map(
+                  (i) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${i.nomIngredient}</h4>
+                  <p>Unit: ${i.uniteType || "-"}</p>
+                  <p>Stock: <strong>${i.stock ?? 0}</strong></p>
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem; max-width:320px;">
+                    <input type="number" id="ingredient-stock-${i.idIngredient}" placeholder="New stock" />
+                    <button class="small secondary" onclick="updateIngredientStock(${i.idIngredient})">Save Stock</button>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="small danger" onclick="deleteItem('ingredients', ${i.idIngredient})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No ingredients</div>';
+          document.getElementById("ingredients-list-container").innerHTML =
+            html;
+        } catch (err) {
+          document.getElementById("ingredients-list-container").innerHTML =
+            '<div class="empty">Error</div>';
+        }
+      }
+
+      document
+        .getElementById("ingredient-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/ingredients", "POST", {
+              nomIngredient: document.getElementById("ing-name").value,
+              uniteType: document.getElementById("ing-unit").value,
+              imageIngredient:
+                document.getElementById("ing-image").value || null,
+            });
+            showMsg("ingredient-msg", "Ingredient created!");
+            document.getElementById("ingredient-form").reset();
+            await fetchReferenceData();
+            loadIngredients();
+          } catch (err) {
+            showMsg("ingredient-msg", "Error", true);
+          }
+        });
+
+      // UTENSILS
+      async function loadUtensils() {
+        try {
+          const res = await api("/utensils?limit=100");
+          const data = res.data || [];
+          const html = data.length
+            ? data
+                .map(
+                  (u) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${u.nomUtensile}</h4>
+                  <p>Stock: <strong>${u.stock ?? 0}</strong></p>
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem; max-width:320px;">
+                    <input type="number" id="utensil-stock-${u.idUtensil}" placeholder="New stock" />
+                    <button class="small secondary" onclick="updateUtensilStock(${u.idUtensil})">Save Stock</button>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="small danger" onclick="deleteItem('utensils', ${u.idUtensil})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No utensils</div>';
+          document.getElementById("utensils-list-container").innerHTML = html;
+        } catch (err) {
+          document.getElementById("utensils-list-container").innerHTML =
+            '<div class="empty">Error</div>';
+        }
+      }
+
+      document
+        .getElementById("utensil-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/utensils", "POST", {
+              nomUtensile: document.getElementById("utensil-name").value,
+              imageUtensile:
+                document.getElementById("utensil-image").value || null,
+            });
+            showMsg("utensil-msg", "Utensil created!");
+            document.getElementById("utensil-form").reset();
+            await fetchReferenceData();
+            loadUtensils();
+          } catch (err) {
+            showMsg("utensil-msg", "Error", true);
+          }
+        });
+
+      // MENUS
+      async function loadMenus() {
+        try {
+          const res = await api("/menus?limit=100");
+          const data = res.data || [];
+          const menusWithRecipes = await Promise.all(
+            data.map(async (m) => {
+              try {
+                const recipesRes = await api(`/menus/${m.idMenu}/recettes`);
+                return { ...m, recettes: recipesRes.data || [] };
+              } catch (err) {
+                return { ...m, recettes: [] };
+              }
+            }),
+          );
+
+          const html = menusWithRecipes.length
+            ? menusWithRecipes
+                .map(
+                  (m) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${m.nomMenu}</h4>
+                  <p>${m.description || ""}</p>
+                  <p><strong>Recipes:</strong></p>
+                  ${
+                    m.recettes.length
+                      ? `<ul>${m.recettes
+                          .map(
+                            (r) =>
+                              `<li>${r.nomRecette} <button class="small danger" onclick="removeRecipeFromMenu(${m.idMenu}, ${r.idRecette})">x</button></li>`,
+                          )
+                          .join("")}</ul>`
+                      : '<p class="empty" style="padding:0.3rem 0; text-align:left;">No recipes linked</p>'
+                  }
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem; max-width:320px;">
+                    <select id="menu-recipe-id-${m.idMenu}">
+                      ${optionList(
+                        cachedRecipes.filter(
+                          (recipe) =>
+                            !m.recettes.some(
+                              (linked) => linked.idRecette === recipe.idRecette,
+                            ),
+                        ),
+                        "idRecette",
+                        "nomRecette",
+                        "Select recipe",
+                      )}
+                    </select>
+                    <button class="small secondary" onclick="addRecipeToMenu(${m.idMenu})">Add Recipe</button>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="small danger" onclick="deleteItem('menus', ${m.idMenu})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No menus</div>';
+          document.getElementById("menus-list-container").innerHTML = html;
+        } catch (err) {
+          document.getElementById("menus-list-container").innerHTML =
+            '<div class="empty">Error</div>';
+        }
+      }
+
+      document
+        .getElementById("menu-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/menus", "POST", {
+              nomMenu: document.getElementById("menu-name").value,
+              description: document.getElementById("menu-desc").value || null,
+            });
+            showMsg("menu-msg", "Menu created!");
+            document.getElementById("menu-form").reset();
+            loadMenus();
+          } catch (err) {
+            showMsg("menu-msg", "Error", true);
+          }
+        });
+
+      // SUPPLIERS
+      async function loadSuppliers() {
+        try {
+          const res = await api("/fournisseurs?limit=100");
+          const data = res.data || [];
+          const suppliersWithItems = await Promise.all(
+            data.map(async (s) => {
+              const [ingredientsRes, utensilsRes] = await Promise.all([
+                api(`/fournisseurs/${s.idFournisseur}/ingredients`).catch(
+                  () => ({ data: [] }),
+                ),
+                api(`/fournisseurs/${s.idFournisseur}/utensils`).catch(() => ({
+                  data: [],
+                })),
+              ]);
+              return {
+                ...s,
+                ingredients: ingredientsRes.data || [],
+                utensils: utensilsRes.data || [],
+              };
+            }),
+          );
+
+          const html = suppliersWithItems.length
+            ? suppliersWithItems
+                .map(
+                  (s) => `
+              <div class="item-card">
+                <div class="item-info">
+                  <h4>${s.nomFournisseur}</h4>
+                  <p>${s.localisation || ""}</p>
+                  <p><strong>Ingredients:</strong></p>
+                  ${
+                    s.ingredients.length
+                      ? `<ul>${s.ingredients
+                          .map(
+                            (i) =>
+                              `<li>${i.nomIngredient} (${i.prix ?? "-"}) <button class="small danger" onclick="unlinkSupplierIngredient(${s.idFournisseur}, ${i.idIngredient})">x</button></li>`,
+                          )
+                          .join("")}</ul>`
+                      : '<p class="empty" style="padding:0.3rem 0; text-align:left;">No ingredients linked</p>'
+                  }
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem; max-width:420px;">
+                    <select id="supplier-ingredient-id-${s.idFournisseur}">
+                      ${optionList(
+                        cachedIngredients.filter(
+                          (ingredient) =>
+                            !s.ingredients.some(
+                              (linked) =>
+                                linked.idIngredient === ingredient.idIngredient,
+                            ),
+                        ),
+                        "idIngredient",
+                        "nomIngredient",
+                        "Select ingredient",
+                      )}
+                    </select>
+                    <input type="number" step="0.01" id="supplier-ingredient-price-${s.idFournisseur}" placeholder="Price" />
+                    <button class="small secondary" onclick="linkSupplierIngredient(${s.idFournisseur})">Add</button>
+                  </div>
+                  <p style="margin-top:0.75rem;"><strong>Utensils:</strong></p>
+                  ${
+                    s.utensils.length
+                      ? `<ul>${s.utensils
+                          .map(
+                            (u) =>
+                              `<li>${u.nomUtensile} (${u.prix ?? "-"}) <button class="small danger" onclick="unlinkSupplierUtensil(${s.idFournisseur}, ${u.idUtensil})">x</button></li>`,
+                          )
+                          .join("")}</ul>`
+                      : '<p class="empty" style="padding:0.3rem 0; text-align:left;">No utensils linked</p>'
+                  }
+                  <div style="display:flex; gap:0.5rem; margin-top:0.5rem; max-width:420px;">
+                    <select id="supplier-utensil-id-${s.idFournisseur}">
+                      ${optionList(
+                        cachedUtensils.filter(
+                          (utensil) =>
+                            !s.utensils.some(
+                              (linked) =>
+                                linked.idUtensil === utensil.idUtensil,
+                            ),
+                        ),
+                        "idUtensil",
+                        "nomUtensile",
+                        "Select utensil",
+                      )}
+                    </select>
+                    <input type="number" step="0.01" id="supplier-utensil-price-${s.idFournisseur}" placeholder="Price" />
+                    <button class="small secondary" onclick="linkSupplierUtensil(${s.idFournisseur})">Add</button>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="small danger" onclick="deleteItem('fournisseurs', ${s.idFournisseur})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No suppliers</div>';
+          document.getElementById("suppliers-list-container").innerHTML = html;
+        } catch (err) {
+          document.getElementById("suppliers-list-container").innerHTML =
+            '<div class="empty">Error</div>';
+        }
+      }
+
+      document
+        .getElementById("supplier-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/fournisseurs", "POST", {
+              nomFournisseur: document.getElementById("supplier-name").value,
+              localisation:
+                document.getElementById("supplier-loc").value || null,
+              contact:
+                document.getElementById("supplier-contact").value || null,
+            });
+            showMsg("supplier-msg", "Supplier created!");
+            document.getElementById("supplier-form").reset();
+            loadSuppliers();
+          } catch (err) {
+            showMsg("supplier-msg", "Error", true);
+          }
+        });
+
+      // CATEGORIES
+      async function loadCategories() {
+        try {
+          const res = await api("/categories?limit=100");
+          const data = res.data || [];
+          const html = data.length
+            ? data
+                .map(
+                  (c) => `
+              <div class="item-card">
+                <div class="item-info"><h4>${c.nomCategorie}</h4></div>
+                <div class="item-actions">
+                  <button class="small danger" onclick="deleteItem('categories', ${c.idCategorie})">Delete</button>
+                </div>
+              </div>
+            `,
+                )
+                .join("")
+            : '<div class="empty">No categories</div>';
+          document.getElementById("categories-list-container").innerHTML = html;
+        } catch (err) {
+          document.getElementById("categories-list-container").innerHTML =
+            '<div class="empty">Error</div>';
+        }
+      }
+
+      document
+        .getElementById("category-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            await api("/categories", "POST", {
+              nomCategorie: document.getElementById("category-name").value,
+            });
+            showMsg("category-msg", "Category created!");
+            document.getElementById("category-form").reset();
+            loadCategories();
+          } catch (err) {
+            showMsg("category-msg", "Error", true);
+          }
+        });
+
+      async function updateIngredientStock(idIngredient) {
+        const input = document.getElementById(
+          `ingredient-stock-${idIngredient}`,
+        );
+        const quantite = Number(input?.value);
+        if (Number.isNaN(quantite) || quantite < 0) {
+          alert("Stock must be a positive number");
+          return;
+        }
+        try {
+          await api(`/ingredients/${idIngredient}/stock`, "PUT", { quantite });
+          loadIngredients();
+        } catch (err) {
+          alert("Failed to update ingredient stock");
+        }
+      }
+
+      async function updateUtensilStock(idUtensil) {
+        const input = document.getElementById(`utensil-stock-${idUtensil}`);
+        const quantite = Number(input?.value);
+        if (Number.isNaN(quantite) || quantite < 0) {
+          alert("Stock must be a positive number");
+          return;
+        }
+        try {
+          await api(`/utensils/${idUtensil}/stock`, "PUT", { quantite });
+          loadUtensils();
+        } catch (err) {
+          alert("Failed to update utensil stock");
+        }
+      }
+
+      async function addRecipeToMenu(idMenu) {
+        const idRecette = Number(
+          document.getElementById(`menu-recipe-id-${idMenu}`)?.value,
+        );
+        if (!idRecette) {
+          alert("Select a recipe");
+          return;
+        }
+        try {
+          await api(`/menus/${idMenu}/recettes/${idRecette}`, "POST", {});
+          loadMenus();
+        } catch (err) {
+          alert("Failed to add recipe to menu");
+        }
+      }
+
+      async function removeRecipeFromMenu(idMenu, idRecette) {
+        try {
+          await api(`/menus/${idMenu}/recettes/${idRecette}`, "DELETE");
+          loadMenus();
+        } catch (err) {
+          alert("Failed to remove recipe from menu");
+        }
+      }
+
+      async function linkSupplierIngredient(idFournisseur) {
+        const idIngredient = Number(
+          document.getElementById(`supplier-ingredient-id-${idFournisseur}`)
+            ?.value,
+        );
+        const priceInput = document.getElementById(
+          `supplier-ingredient-price-${idFournisseur}`,
+        );
+        if (!idIngredient) {
+          alert("Select an ingredient");
+          return;
+        }
+
+        try {
+          await api(
+            `/fournisseurs/${idFournisseur}/ingredients/${idIngredient}`,
+            "POST",
+            { prix: priceInput?.value || null },
+          );
+          loadSuppliers();
+        } catch (err) {
+          alert("Failed to link ingredient to supplier");
+        }
+      }
+
+      async function unlinkSupplierIngredient(idFournisseur, idIngredient) {
+        try {
+          await api(
+            `/fournisseurs/${idFournisseur}/ingredients/${idIngredient}`,
+            "DELETE",
+          );
+          loadSuppliers();
+        } catch (err) {
+          alert("Failed to unlink ingredient");
+        }
+      }
+
+      async function linkSupplierUtensil(idFournisseur) {
+        const idUtensil = Number(
+          document.getElementById(`supplier-utensil-id-${idFournisseur}`)
+            ?.value,
+        );
+        const priceInput = document.getElementById(
+          `supplier-utensil-price-${idFournisseur}`,
+        );
+        if (!idUtensil) {
+          alert("Select a utensil");
+          return;
+        }
+
+        try {
+          await api(
+            `/fournisseurs/${idFournisseur}/utensils/${idUtensil}`,
+            "POST",
+            {
+              prix: priceInput?.value || null,
+            },
+          );
+          loadSuppliers();
+        } catch (err) {
+          alert("Failed to link utensil to supplier");
+        }
+      }
+
+      async function unlinkSupplierUtensil(idFournisseur, idUtensil) {
+        try {
+          await api(
+            `/fournisseurs/${idFournisseur}/utensils/${idUtensil}`,
+            "DELETE",
+          );
+          loadSuppliers();
+        } catch (err) {
+          alert("Failed to unlink utensil");
+        }
+      }
+
+      async function deleteItem(type, id) {
+        if (!confirm("Delete?")) return;
+        const map = {
+          ingredients: "/ingredients",
+          utensils: "/utensils",
+          menus: "/menus",
+          fournisseurs: "/fournisseurs",
+          categories: "/categories",
+        };
+        try {
+          await api(`${map[type]}/${id}`, "DELETE");
+          loadSection(type === "fournisseurs" ? "suppliers" : type);
+        } catch (err) {
+          alert("Error");
+        }
+      }
+
+      async function initApp() {
+        await fetchReferenceData();
+        loadRecipes();
+      }
+
+      initApp();
+    </script>
+  </body>
+</html>
